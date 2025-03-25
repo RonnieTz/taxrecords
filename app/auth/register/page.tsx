@@ -29,8 +29,10 @@ export default function Register() {
       }
 
       router.push('/auth/signin?registered=true');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'An unknown error occurred'
+      );
     }
   };
 

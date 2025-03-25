@@ -55,7 +55,8 @@ export default function SignIn() {
         </div>
         <button type="submit">Sign In</button>
         <p className={styles.altLink}>
-          Don't have an account? <Link href="/auth/register">Register</Link>
+          Don&apos;t have an account?{' '}
+          <Link href="/auth/register">Register</Link>
         </p>
       </form>
     </div>
