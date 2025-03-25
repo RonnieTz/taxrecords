@@ -5,10 +5,12 @@ import FinancialForm from './FinancialForm';
 import styles from '../app/page.module.css';
 import { useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import type { FormData } from '@/components/FinancialForm';
 
 // Extending the imported type locally if necessary
 interface ExtendedFinancialRecord extends FinancialRecord {
   _id?: string;
+  id?: string;
 }
 
 interface ExpenseSectionProps {
@@ -31,16 +33,23 @@ export default function ExpenseSection({
   const [currentOperation, setCurrentOperation] = useState<string | null>(null);
 
   // Handle adding expense
-  const handleExpenseSubmit = async (formData: any) => {
+  const handleExpenseSubmit = async (formData: FormData) => {
     try {
+      const amount = parseFloat(formData.amount as string);
+      const description = formData.description as string;
+      const date = formData.date as string;
+      const category = formData.category as string;
+
       const response = await fetch('/api/expenses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          amount: parseFloat(formData.amount),
+          amount,
+          description,
+          date,
+          category,
           year: parseInt(year),
         }),
       });
@@ -55,6 +64,8 @@ export default function ExpenseSection({
         setError('Failed to add expense');
       }
     } catch (err) {
+      console.log(err);
+
       setError('An error occurred while adding expense');
     }
   };
@@ -73,7 +84,7 @@ export default function ExpenseSection({
 
       // Find the actual record for better error handling
       const recordToDelete = expenses.find((expense) =>
-        isMongoId ? expense._id === id : (expense as any).id === id
+        isMongoId ? expense._id === id : expense.id === id
       );
 
       if (!recordToDelete) {
@@ -84,7 +95,7 @@ export default function ExpenseSection({
       }
 
       // Determine the correct ID to use (_id for MongoDB, id for other storage)
-      const apiId = recordToDelete._id || (recordToDelete as any).id;
+      const apiId = recordToDelete._id || recordToDelete.id;
       console.log(`Using API ID for deletion: ${apiId}`);
 
       const response = await fetch(`/api/expenses?id=${apiId}`, {
@@ -109,7 +120,7 @@ export default function ExpenseSection({
         // Update local state to remove the deleted item
         setExpenses((prev) =>
           prev.filter((expense) =>
-            isMongoId ? expense._id !== id : (expense as any).id !== id
+            isMongoId ? expense._id !== id : expense.id !== id
           )
         );
       } else {

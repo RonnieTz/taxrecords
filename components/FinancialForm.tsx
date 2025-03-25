@@ -2,9 +2,16 @@
 import { useState, useMemo } from 'react';
 import styles from './FinancialForm.module.css';
 
+export interface FormData {
+  date: string;
+  description: string;
+  category: string;
+  amount: string | number;
+}
+
 interface FinancialFormProps {
   type: 'income' | 'expense';
-  onSubmit: (formData: any) => Promise<void>;
+  onSubmit: (formData: FormData) => Promise<void>;
   idPrefix?: string;
   year: number; // Add year prop
 }

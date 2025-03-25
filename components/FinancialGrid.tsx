@@ -1,7 +1,12 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, ICellRendererParams, GridApi } from 'ag-grid-community';
+import {
+  ColDef,
+  ICellRendererParams,
+  GridApi,
+  GridReadyEvent,
+} from 'ag-grid-community';
 import { FinancialRecord } from '../app/year/[year]/page';
 import styles from '../app/page.module.css';
 
@@ -75,14 +80,14 @@ const ActionCellRenderer = (
 
 export default function FinancialGrid({
   data,
-  title,
+
   onDelete,
 }: FinancialGridProps) {
   const gridRef = useRef<AgGridReact>(null);
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
 
   // Set up the grid API when it's ready
-  const onGridReady = (params: any) => {
+  const onGridReady = (params: GridReadyEvent) => {
     setGridApi(params.api);
   };
 

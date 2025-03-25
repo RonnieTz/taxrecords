@@ -25,7 +25,9 @@ export default function Home() {
         } else {
           setError('Failed to fetch years');
         }
-      } catch (error) {
+      } catch (e) {
+        console.log(e);
+
         setError('An error occurred while fetching years');
       } finally {
         setIsLoading(false);
@@ -62,6 +64,7 @@ export default function Home() {
         setError('Failed to add year');
       }
     } catch (error) {
+      console.error(error);
       setError('An error occurred while adding year');
     }
   };

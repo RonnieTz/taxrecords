@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../../page.module.css';
 import FinancialSummary from '@/components/FinancialSummary';
@@ -15,8 +15,8 @@ export interface FinancialRecord {
 }
 
 export default function YearPage() {
-  const { year } = useParams();
-  const router = useRouter();
+  const params = useParams();
+  const year = params?.year as string;
   const [incomes, setIncomes] = useState<FinancialRecord[]>([]);
   const [expenses, setExpenses] = useState<FinancialRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +49,8 @@ export default function YearPage() {
           setError('Failed to fetch data');
         }
       } catch (err) {
+        console.log(err);
+
         setError('An error occurred while fetching data');
       } finally {
         setIsLoading(false);
