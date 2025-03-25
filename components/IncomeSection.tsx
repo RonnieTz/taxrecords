@@ -38,6 +38,10 @@ export default function IncomeSection({
         typeof formData.amount === 'string'
           ? formData.amount
           : formData.amount?.toString() || '0';
+      const taxDeductions =
+        typeof formData.taxDeductions === 'string'
+          ? formData.taxDeductions
+          : formData.taxDeductions?.toString() || '0';
       const data = formData;
 
       const response = await fetch('/api/income', {
@@ -48,6 +52,7 @@ export default function IncomeSection({
         body: JSON.stringify({
           ...data,
           amount: parseFloat(amount),
+          taxDeductions: parseFloat(taxDeductions),
           year: parseInt(year),
         }),
       });

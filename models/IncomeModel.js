@@ -22,6 +22,11 @@ const IncomeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  taxDeductions: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 });
 
 module.exports =

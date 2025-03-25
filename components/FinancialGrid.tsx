@@ -139,6 +139,14 @@ export default function FinancialGrid({
       filter: 'agNumberColumnFilter',
       valueFormatter: (params: { value: number }) => params.value.toFixed(2),
     },
+    {
+      field: 'taxDeductions' as keyof FinancialRecord,
+      headerName: 'Tax Deductions ($)',
+      sortable: true,
+      filter: 'agNumberColumnFilter',
+      valueFormatter: (params: { value: number }) =>
+        params.value ? params.value.toFixed(2) : '0.00',
+    },
     // Add action column with delete button
     {
       headerName: 'Actions',

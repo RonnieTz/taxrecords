@@ -7,6 +7,7 @@ export interface FormData {
   description: string;
   category: string;
   amount: string | number;
+  taxDeductions?: string | number;
 }
 
 interface FinancialFormProps {
@@ -45,6 +46,7 @@ export default function FinancialForm({
     description: '',
     category: type === 'income' ? 'Salary' : '', // Set default category to 'Salary' for income
     amount: '',
+    taxDeductions: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,6 +70,7 @@ export default function FinancialForm({
       description: '',
       category: type === 'income' ? 'Salary' : '', // Keep 'Salary' as default for income after reset
       amount: '',
+      taxDeductions: '',
     });
   };
 
@@ -161,6 +164,25 @@ export default function FinancialForm({
               required
             />
           </div>
+
+          {type === 'income' && (
+            <div className={styles.formGroup}>
+              <label htmlFor={`${idPrefix}taxDeductions`}>
+                Tax Deductions ($)
+              </label>
+              <input
+                type="number"
+                id={`${idPrefix}taxDeductions`}
+                name="taxDeductions"
+                value={formData.taxDeductions}
+                onChange={handleChange}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className={styles.formInput}
+              />
+            </div>
+          )}
         </div>
 
         <div className={styles.formActions}>

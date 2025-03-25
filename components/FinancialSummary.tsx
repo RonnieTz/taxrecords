@@ -4,12 +4,14 @@ interface FinancialSummaryProps {
   totalIncome: number;
   totalExpenses: number;
   netAmount: number;
+  totalDeductions: number;
 }
 
 export default function FinancialSummary({
   totalIncome,
   totalExpenses,
   netAmount,
+  totalDeductions,
 }: FinancialSummaryProps) {
   return (
     <div className={styles.summary}>
@@ -33,6 +35,12 @@ export default function FinancialSummary({
           }`}
         >
           ${netAmount.toFixed(2)}
+        </span>
+      </div>
+      <div className={styles.summaryItem}>
+        <span className={styles.summaryLabel}>Total Tax Deductions</span>
+        <span className={`${styles.summaryValue} ${styles.deduction}`}>
+          ${totalDeductions?.toFixed(2)}
         </span>
       </div>
     </div>
