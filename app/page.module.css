@@ -353,6 +353,121 @@
   transform: translateY(0);
 }
 
+.navigation {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.navButton {
+  background-color: #0070f3;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.navButton:hover {
+  background-color: #0060df;
+  transform: translateY(-1px);
+}
+
+.navButton:active {
+  transform: translateY(0);
+}
+
+.homeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #48bb78;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.homeButton:hover {
+  background-color: #38a169;
+  transform: translateY(-1px);
+}
+
+.homeButton:active {
+  transform: translateY(0);
+}
+
+.homeIcon {
+  flex-shrink: 0;
+}
+
+.sectionCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.sectionCard {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sectionCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sectionCard h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sectionSummary {
+  margin: 1rem 0;
+  flex-grow: 1;
+}
+
+.sectionSummary p {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+.viewButton {
+  background-color: #0070f3;
+  color: white;
+  padding: 0.75rem;
+  text-align: center;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+.sectionCard:hover .viewButton {
+  background-color: #0060df;
+}
+
+.singleSection {
+  width: 100%;
+  margin: 2rem 0;
+}
+
 /* Media query for mobile */
 @media (max-width: 640px) {
   .yearHeader {
@@ -363,5 +478,17 @@
 
   .backButton {
     align-self: flex-start;
+  }
+
+  .navigation {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navButton,
+  .backButton {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
   }
 }
