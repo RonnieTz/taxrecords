@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import styles from './page.module.css';
 import Link from 'next/link';
 
@@ -9,6 +10,7 @@ interface YearData {
 }
 
 export default function Home() {
+  const { data: session, status } = useSession();
   const [years, setYears] = useState<YearData[]>([]);
   const [newYear, setNewYear] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -69,9 +71,31 @@ export default function Home() {
     }
   };
 
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    return (
+      <div className={styles.page}>
+        <h1>Tax Records Management</h1>
+        <div className={styles.auth}>
+          <p>Please sign in to access your tax records</p>
+          <button onClick={() => signIn()}>Sign In</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
-      <h1>Tax Records Management</h1>
+      <div className={styles.header}>
+        <h1>Tax Records Management</h1>
+        <div className={styles.profile}>
+          <span>Welcome, {session.user?.name}</span>
+          <button onClick={() => signOut()}>Sign Out</button>
+        </div>
+      </div>
 
       <div className={styles.yearSelector}>
         <h2>Select a Year to View Records</h2>
