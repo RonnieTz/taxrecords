@@ -14,6 +14,7 @@ export default function ExpensesPage({
   params: Promise<{ year: string }>;
 }) {
   const { year } = use(params);
+  const [incomes, setIncomes] = useState<FinancialRecord[]>([]);
   const [expenses, setExpenses] = useState<FinancialRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +23,12 @@ export default function ExpensesPage({
   // Calculate expense summary
   const totalExpenses = expenses.reduce(
     (sum, expense) => sum + expense.amount,
+    0
+  );
+  const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+  const netAmount = totalIncome - totalExpenses;
+  const totalDeductions = incomes.reduce(
+    (sum, income) => sum + (income.taxDeductions || 0),
     0
   );
 
@@ -38,6 +45,14 @@ export default function ExpensesPage({
           setExpenses(expenseData.data);
         } else {
           setError('Failed to fetch expense data');
+        }
+        const incomeRes = await fetch(`/api/income?year=${year}`);
+        const incomeData = await incomeRes.json();
+
+        if (incomeData.success) {
+          setIncomes(incomeData.data);
+        } else {
+          setError('Failed to fetch income data');
         }
       } catch (err) {
         setError('An error occurred while fetching data');
@@ -102,10 +117,10 @@ export default function ExpensesPage({
       ) : (
         <>
           <FinancialSummary
-            totalIncome={0}
+            totalIncome={totalIncome}
             totalExpenses={totalExpenses}
-            netAmount={-totalExpenses}
-            totalDeductions={0}
+            netAmount={netAmount}
+            totalDeductions={totalDeductions}
           />
 
           <div className={styles.singleSection}>

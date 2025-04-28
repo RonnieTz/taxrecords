@@ -15,12 +15,18 @@ export default function IncomePage({
 }) {
   const { year } = use(params);
   const [incomes, setIncomes] = useState<FinancialRecord[]>([]);
+  const [expenses, setExpenses] = useState<FinancialRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   console.log(error);
 
   // Calculate income summary
   const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+  const totalExpenses = expenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0
+  );
+  const netAmount = totalIncome - totalExpenses;
   const totalDeductions = incomes.reduce(
     (sum, income) => sum + (income.taxDeductions || 0),
     0
@@ -39,6 +45,14 @@ export default function IncomePage({
           setIncomes(incomeData.data);
         } else {
           setError('Failed to fetch income data');
+        }
+        const expenseRes = await fetch(`/api/expenses?year=${year}`);
+        const expenseData = await expenseRes.json();
+
+        if (expenseData.success) {
+          setExpenses(expenseData.data);
+        } else {
+          setError('Failed to fetch expense data');
         }
       } catch (err) {
         setError('An error occurred while fetching data');
@@ -104,8 +118,8 @@ export default function IncomePage({
         <>
           <FinancialSummary
             totalIncome={totalIncome}
-            totalExpenses={0}
-            netAmount={totalIncome}
+            totalExpenses={totalExpenses}
+            netAmount={netAmount}
             totalDeductions={totalDeductions}
           />
 
