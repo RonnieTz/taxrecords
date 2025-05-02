@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import styles from './page.module.css';
 import Link from 'next/link';
+import { getYears, addYear } from './actions/years';
 
 interface YearData {
   _id: string;
@@ -18,18 +19,21 @@ export default function Home() {
 
   useEffect(() => {
     const fetchYears = async () => {
+      setIsLoading(true);
+      setError('');
       try {
-        const response = await fetch('/api/years');
-        const result = await response.json();
-
-        if (result.success) {
+        if (!session?.user?.id) {
+          setError('User not found');
+          return;
+        }
+        const result = await getYears();
+        if (result.success && Array.isArray(result.data)) {
           setYears(result.data);
         } else {
           setError('Failed to fetch years');
         }
       } catch (e) {
-        console.log(e);
-
+        console.error(e);
         setError('An error occurred while fetching years');
       } finally {
         setIsLoading(false);
@@ -37,37 +41,42 @@ export default function Home() {
     };
 
     fetchYears();
-  }, []);
+  }, [session]);
 
   const handleAddYear = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!newYear || isNaN(Number(newYear))) {
       setError('Please enter a valid year');
+      // Clear error message after 3 seconds
+      setTimeout(() => setError(''), 3000);
       return;
     }
 
+    if (!session?.user?.id) {
+      setError('User not found');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/years', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ year: Number(newYear) }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setYears([result.data, ...years]);
+      const result = await addYear(Number(newYear));
+      if (result.success && result.data) {
+        setYears([result.data as YearData, ...years]);
         setNewYear('');
-        setError('');
       } else {
-        setError('Failed to add year');
+        setError(result.message || 'Failed to add year');
+        // Clear error message after 3 seconds
+        setTimeout(() => setError(''), 3000);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (e) {
+      console.error(e);
       setError('An error occurred while adding year');
+      // Clear error message after 3 seconds
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -100,13 +109,13 @@ export default function Home() {
       <div className={styles.yearSelector}>
         <h2>Select a Year to View Records</h2>
 
-        {isLoading ? (
-          <p>Loading years...</p>
-        ) : error ? (
-          <p className={styles.error}>{error}</p>
-        ) : years.length === 0 ? (
+        {isLoading && <p>Loading years...</p>}
+
+        {!isLoading && years.length === 0 && !error && (
           <p>No years found. Add a new year below.</p>
-        ) : (
+        )}
+
+        {years.length > 0 && (
           <div className={styles.yearGrid}>
             {years.map((yearData) => (
               <Link
@@ -120,6 +129,8 @@ export default function Home() {
             ))}
           </div>
         )}
+
+        {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.addYearForm}>
           <h3>Add a New Year</h3>

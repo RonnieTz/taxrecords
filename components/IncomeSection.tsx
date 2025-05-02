@@ -5,6 +5,8 @@ import FinancialForm, { FormData as FinancialFormData } from './FinancialForm';
 import styles from '../app/page.module.css';
 import { useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import { addIncome, deleteIncome } from '@/app/actions/incomes';
+import { useSession } from 'next-auth/react';
 
 // Extending the imported type locally if necessary
 interface ExtendedFinancialRecord extends FinancialRecord {
@@ -25,6 +27,7 @@ export default function IncomeSection({
   onAddIncome,
   setError,
 }: IncomeSectionProps) {
+  const { data: session } = useSession();
   const [incomes, setIncomes] = useState<ExtendedFinancialRecord[]>(
     initialIncomes as ExtendedFinancialRecord[]
   );
@@ -36,31 +39,36 @@ export default function IncomeSection({
     try {
       const amount =
         typeof formData.amount === 'string'
-          ? formData.amount
-          : formData.amount?.toString() || '0';
+          ? parseFloat(formData.amount)
+          : formData.amount || 0;
+
       const taxDeductions =
         typeof formData.taxDeductions === 'string'
-          ? formData.taxDeductions
-          : formData.taxDeductions?.toString() || '0';
-      const data = formData;
+          ? parseFloat(formData.taxDeductions)
+          : formData.taxDeductions || 0;
 
-      const response = await fetch('/api/income', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...data,
-          amount: parseFloat(amount),
-          taxDeductions: parseFloat(taxDeductions),
-          year: parseInt(year),
-        }),
-      });
+      const yearNumber = parseInt(year);
 
-      const result = await response.json();
+      if (!session?.user?.id) {
+        setError('You must be logged in to add income records');
+        return;
+      }
+
+      // Use addIncome server action with year parameter
+      const result = await addIncome(
+        formData.description,
+        amount,
+        new Date(formData.date),
+        formData.category,
+        yearNumber, // Pass the year parameter
+        taxDeductions
+      );
 
       if (result.success) {
-        const newIncome = result.data;
+        const newIncome = {
+          ...result.data,
+          year: yearNumber,
+        };
         setIncomes((prev) => [...prev, newIncome]);
         onAddIncome(newIncome);
       } else {
@@ -80,6 +88,12 @@ export default function IncomeSection({
     console.log(`Attempting to delete income with ID: ${id}`);
 
     try {
+      if (!session?.user?.id) {
+        setError('You must be logged in to delete income records');
+        setIsDeleting(false);
+        return;
+      }
+
       // First determine if we're dealing with an ObjectID from MongoDB or a string ID
       const mongoIdPattern = /^[0-9a-fA-F]{24}$/;
       const isMongoId = mongoIdPattern.test(id);
@@ -100,21 +114,8 @@ export default function IncomeSection({
       const apiId = recordToDelete._id || recordToDelete.id;
       console.log(`Using API ID for deletion: ${apiId}`);
 
-      const response = await fetch(`/api/income?id=${apiId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Server responded with ${response.status}: ${errorText}`
-        );
-      }
-
-      const result = await response.json();
+      // Use deleteIncome server action instead of fetch
+      const result = await deleteIncome(apiId as string);
       console.log('Delete API response:', result);
 
       if (result.success) {

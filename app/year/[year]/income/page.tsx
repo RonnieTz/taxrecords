@@ -1,12 +1,11 @@
 'use client';
-import { useState, useEffect } from 'react';
 import { use } from 'react';
 import Link from 'next/link';
 import styles from '../../../page.module.css';
 import IncomeSection from '@/components/IncomeSection';
 import FinancialSummary from '@/components/FinancialSummary';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { FinancialRecord } from '../page';
+import { useFinancialData } from '@/hooks/useFinancialData';
 
 export default function IncomePage({
   params,
@@ -14,66 +13,16 @@ export default function IncomePage({
   params: Promise<{ year: string }>;
 }) {
   const { year } = use(params);
-  const [incomes, setIncomes] = useState<FinancialRecord[]>([]);
-  const [expenses, setExpenses] = useState<FinancialRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  console.log(error);
-
-  // Calculate income summary
-  const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
-  const totalExpenses = expenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
-  const netAmount = totalIncome - totalExpenses;
-  const totalDeductions = incomes.reduce(
-    (sum, income) => sum + (income.taxDeductions || 0),
-    0
-  );
-
-  // Fetch income data on initial load
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        // Fetch income
-        const incomeRes = await fetch(`/api/income?year=${year}`);
-        const incomeData = await incomeRes.json();
-
-        if (incomeData.success) {
-          setIncomes(incomeData.data);
-        } else {
-          setError('Failed to fetch income data');
-        }
-        const expenseRes = await fetch(`/api/expenses?year=${year}`);
-        const expenseData = await expenseRes.json();
-
-        if (expenseData.success) {
-          setExpenses(expenseData.data);
-        } else {
-          setError('Failed to fetch expense data');
-        }
-      } catch (err) {
-        setError('An error occurred while fetching data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [year]);
-
-  const handleAddIncome = (newIncome: FinancialRecord) => {
-    setIncomes((prevIncomes) => [...prevIncomes, newIncome]);
-  };
-
-  const handleErrorSet = (message: string) => {
-    setError(message);
-    // Clear error after 5 seconds
-    setTimeout(() => setError(null), 5000);
-  };
+  const {
+    incomes,
+    loading,
+    totalIncome,
+    totalExpenses,
+    netAmount,
+    totalDeductions,
+    handleUpdateIncomes,
+    handleErrorSet,
+  } = useFinancialData(year);
 
   return (
     <main className={styles.main}>
@@ -127,7 +76,7 @@ export default function IncomePage({
             <IncomeSection
               incomes={incomes}
               year={year}
-              onAddIncome={handleAddIncome}
+              onAddIncome={handleUpdateIncomes}
               setError={handleErrorSet}
             />
           </div>

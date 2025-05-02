@@ -4,7 +4,6 @@ const IncomeSchema = new mongoose.Schema({
   year: {
     type: Number,
     required: true,
-    ref: 'Year',
   },
   date: {
     type: Date,
@@ -26,6 +25,10 @@ const IncomeSchema = new mongoose.Schema({
     type: Number,
     required: true,
     default: 0,
+  },
+  user: {
+    type: String,
+    required: true,
   },
 });
 

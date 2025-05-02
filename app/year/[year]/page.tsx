@@ -1,14 +1,13 @@
 'use client';
-import { useState, useEffect } from 'react';
 import { use } from 'react';
 import Link from 'next/link';
 import styles from '../../page.module.css';
 import FinancialSummary from '@/components/FinancialSummary';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useFinancialData } from '@/hooks/useFinancialData';
 
 export interface FinancialRecord {
   _id?: string;
-  id?: string;
   date: string;
   description: string;
   amount: number;
@@ -23,58 +22,15 @@ export default function YearPage({
   params: Promise<{ year: string }>;
 }) {
   const { year } = use(params);
-  const [incomes, setIncomes] = useState<FinancialRecord[]>([]);
-  const [expenses, setExpenses] = useState<FinancialRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  console.log(error);
-
-  // Calculate financial summary
-  const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
-  const totalExpenses = expenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
-  const netAmount = totalIncome - totalExpenses;
-  const totalDeductions = incomes.reduce(
-    (sum, income) => sum + (income.taxDeductions || 0),
-    0
-  );
-
-  // Fetch income and expenses on initial load
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        // Fetch income
-        const incomeRes = await fetch(`/api/income?year=${year}`);
-        const incomeData = await incomeRes.json();
-
-        if (incomeData.success) {
-          setIncomes(incomeData.data);
-        } else {
-          setError('Failed to fetch income data');
-        }
-
-        // Fetch expenses
-        const expenseRes = await fetch(`/api/expenses?year=${year}`);
-        const expenseData = await expenseRes.json();
-
-        if (expenseData.success) {
-          setExpenses(expenseData.data);
-        } else {
-          setError('Failed to fetch expense data');
-        }
-      } catch (err) {
-        setError('An error occurred while fetching data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [year]);
+  const {
+    incomes,
+    expenses,
+    loading,
+    totalIncome,
+    totalExpenses,
+    netAmount,
+    totalDeductions,
+  } = useFinancialData(year);
 
   return (
     <main className={styles.main}>
