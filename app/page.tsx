@@ -132,21 +132,23 @@ export default function Home() {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <div className={styles.addYearForm}>
-          <h3>Add a New Year</h3>
-          <form onSubmit={handleAddYear}>
-            <input
-              type="number"
-              value={newYear}
-              onChange={(e) => setNewYear(e.target.value)}
-              placeholder="Enter year (e.g., 2023)"
-              min="1900"
-              max="2100"
-              required
-            />
-            <button type="submit">Add Year</button>
-          </form>
-        </div>
+        {!isLoading && (
+          <div className={styles.addYearForm}>
+            <h3>Add a New Year</h3>
+            <form onSubmit={handleAddYear}>
+              <input
+                type="number"
+                value={newYear}
+                onChange={(e) => setNewYear(e.target.value)}
+                placeholder="Enter year (e.g., 2023)"
+                min="1900"
+                max="2100"
+                required
+              />
+              <button type="submit">Add Year</button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
